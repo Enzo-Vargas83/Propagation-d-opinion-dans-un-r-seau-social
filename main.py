@@ -1,21 +1,36 @@
 import networkx as nx
 import matplotlib.pyplot as plt
+import numpy as np
+import random
 
-# On crée un graphe vide
-G = nx.Graph()
+def GenerateWeight():
+   return round(random.uniform(0, 1), 1)
+   
+# d = {'A':['B','C'],'B':['A','D'],'C':['A','D'],'D':['C','B'],'E':['A','B','C','D']}
 
-# On ajoute les sommets
-G.add_node(1)  # un sommet
-G.add_nodes_from([2, 3])  # une liste de sommets
+d = {'A': ['B'], 'B': ['C'], 'C': ['A']}
 
-nouveaux_noms = {0:'A', 1:'B', 2:'C', 3}
-G = nx.relabel_nodes(G, nouveaux_noms)
+G = nx.DiGraph(d)
 
-G.add_edge(1, 2)  # une arête
-G.add_edges_from([(1, 3), (2, 1)])  # une liste d'arêtes
+# poids
+G.add_edges_from([
+    ('A', 'B', {'weight': GenerateWeight()}),
+    ('B', 'C', {'weight': GenerateWeight()}),
+    ('C', 'A', {'weight': GenerateWeight()})
+])
+# met les poid au arrette
 
-# Si on ajoute une arete avec un sommet inconnu celui-ci sera automatiquement créé
-G.add_edge(1, 4)
+pos = nx.spring_layout(G)
 
-nx.draw(G, with_labels=True, pos=nx.spring_layout(G))  # Tracé du graphe (argument pos optionnel)
+nx.draw(G, with_labels=True, pos=pos)
+
+labels = nx.get_edge_attributes(G, 'weight')
+nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
+
+print("Matrice d\'adjacence : \n", nx.to_numpy_array(G))
+
+
 plt.show()
+
+# https://networkx.org/documentation/stable/reference/generated/networkx.linalg.graphmatrix.adjacency_matrix.html
+
