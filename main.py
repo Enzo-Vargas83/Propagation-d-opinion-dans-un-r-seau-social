@@ -3,35 +3,61 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random
 
-
+#fonction chopisissant le poids au hasard
 def GenerateWeight():
-    return round(random.uniform(0, 1), 1)
+   return round(random.uniform(0, 1), 1)
 
+#défini les noeuds, arrëëtes, et poid du graphe
+d = {'A':{'B':{'weight': GenerateWeight()}, 'C':{'weight':GenerateWeight()}}, 
+'B':{'C':{'weight':GenerateWeight()}, 'D':{'weight':  GenerateWeight()}}, 
+'C': {'D':{'weight':GenerateWeight()}}}
 
-# d = {'A':['B','C'],'B':['A','D'],'C':['A','D'],'D':['C','B'],'E':['A','B','C','D']}
-
-d = {'A': ['B'], 'B': ['C'], 'C': ['A']}    # dictionnaire des arrête et sommet
-
-G = nx.DiGraph(d) # génération du graph
-
-# poids
-G.add_edges_from([
-    ('A', 'B', {'weight': GenerateWeight()}),
-    ('B', 'C', {'weight': GenerateWeight()}),
-    ('C', 'A', {'weight': GenerateWeight()})
-])
-# met les poid au arrette
+#génère le graphe
+G = nx.DiGraph(d)
 pos = nx.spring_layout(G)
 
+#divise le graph en 2 opinions
+u = np.ones(4)
+for j in range(4//2):
+    u[2*j]=0
 
-nx.draw(G, with_labels=True, pos=pos) #add label
-
-labels = nx.get_edge_attributes(G, 'weight')  #show weight
+# Tracé de la condition initiale
+fig=plt.figure(1)
+nx.draw(G, with_labels=True,pos=pos,node_color=u, cmap='coolwarm')
+labels = nx.get_edge_attributes(G, 'weight')
+sc=nx.draw_networkx_nodes(G, pos, node_color=u, cmap='coolwarm')
 nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
 
+#matrix 
+M = nx.to_numpy_array(G)
+print("Matrice d\'adjacence: \n", M)
+#addition colonne 
+print ('add \n')
+s = np.sum(M, axis=1)
+#additionne les collonne de la matrix
+print(s)
+
+
+
+
+
+
+#test influence d'Enzo
+M= nx.to_numpy_array(G)
+M.T
+
+#calcul du nombre d'adjacent
+nbadj = 0
+for i in M.T[1]:
+    if i != 0:
+        nbadj+=1
+
+print("Colonne : \n", M.T[1])
+print("Moyenne : \n", sum(M.T[1]/nbadj))
 print("Matrice d\'adjacence : \n", nx.to_numpy_array(G))
 
+#affiche le graphe et la légende
+plt.axis('equal')
+fig.colorbar(sc)
+plt.title("Opinion initiale")
 plt.show()
-
-# https://networkx.org/documentation/stable/reference/generated/networkx.linalg.graphmatrix.adjacency_matrix.html
-
